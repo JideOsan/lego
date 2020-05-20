@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strings"
 	"time"
 
 	"github.com/go-acme/lego/v3/challenge/dns01"
@@ -119,10 +118,9 @@ func (d *DNSProvider) Present(domain, token, keyAuth string) error {
 	}
 
 	fqdn, value := dns01.GetRecord(domain, keyAuth)
-	parts := strings.Split(fqdn, ".")
 
 	record := Record{
-		Name: parts[0],
+		Name: fqdn,
 		Type: "TXT",
 		TTL:  d.config.TTL,
 		Data: value,
@@ -139,9 +137,8 @@ func (d *DNSProvider) CleanUp(domain, token, keyAuth string) error {
 	}
 
 	fqdn, _ := dns01.GetRecord(domain, keyAuth)
-	parts := strings.Split(fqdn, ".")
 
-	records, err := d.getZoneRecords(parts[0], zone)
+	records, err := d.getZoneRecords(fqdn, zone)
 	if err != nil {
 		return err
 	}
